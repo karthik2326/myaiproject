@@ -3,20 +3,28 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PMFBY Crop Insurance AI Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: farmers
+  - name: fields
+  - name: claims
+  - name: predictions
+  - name: inspections
+  - name: anomalies
+  - name: weather
+  - name: dashboard
+  - name: activity
+  - name: datacollection
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +32,1679 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /farmers:
+    get:
+      operationId: listFarmers
+      tags: [farmers]
+      parameters:
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of farmers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Farmer"
+    post:
+      operationId: createFarmer
+      tags: [farmers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FarmerInput"
+      responses:
+        "201":
+          description: Farmer created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+
+  /farmers/{id}:
+    get:
+      operationId: getFarmer
+      tags: [farmers]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Farmer details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateFarmer
+      tags: [farmers]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FarmerUpdate"
+      responses:
+        "200":
+          description: Updated farmer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+
+  /farmers/{id}/claims:
+    get:
+      operationId: getFarmerClaims
+      tags: [farmers]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claims for farmer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Claim"
+
+  /fields:
+    get:
+      operationId: listFields
+      tags: [fields]
+      parameters:
+        - name: farmerId
+          in: query
+          schema:
+            type: integer
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: cropType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of fields
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Field"
+    post:
+      operationId: createField
+      tags: [fields]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FieldInput"
+      responses:
+        "201":
+          description: Field created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Field"
+
+  /fields/{id}:
+    get:
+      operationId: getField
+      tags: [fields]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Field details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Field"
+        "404":
+          description: Not found
+
+  /claims:
+    get:
+      operationId: listClaims
+      tags: [claims]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: cropType
+          in: query
+          schema:
+            type: string
+        - name: damageType
+          in: query
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+        - name: toDate
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of claims
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Claim"
+    post:
+      operationId: createClaim
+      tags: [claims]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimInput"
+      responses:
+        "201":
+          description: Claim created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}:
+    get:
+      operationId: getClaim
+      tags: [claims]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claim details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateClaim
+      tags: [claims]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimUpdate"
+      responses:
+        "200":
+          description: Updated claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}/approve:
+    post:
+      operationId: approveClaim
+      tags: [claims]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimDecision"
+      responses:
+        "200":
+          description: Claim approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}/reject:
+    post:
+      operationId: rejectClaim
+      tags: [claims]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimDecision"
+      responses:
+        "200":
+          description: Claim rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}/flag:
+    post:
+      operationId: flagClaim
+      tags: [claims]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimFlag"
+      responses:
+        "200":
+          description: Claim flagged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /predictions:
+    get:
+      operationId: listPredictions
+      tags: [predictions]
+      parameters:
+        - name: claimId
+          in: query
+          schema:
+            type: integer
+        - name: cropType
+          in: query
+          schema:
+            type: string
+        - name: flaggedOnly
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of predictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prediction"
+    post:
+      operationId: createPrediction
+      tags: [predictions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PredictionInput"
+      responses:
+        "201":
+          description: Prediction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prediction"
+
+  /predictions/{id}:
+    get:
+      operationId: getPrediction
+      tags: [predictions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Prediction details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prediction"
+        "404":
+          description: Not found
+
+  /predictions/model-stats:
+    get:
+      operationId: getModelStats
+      tags: [predictions]
+      responses:
+        "200":
+          description: Model performance stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelStats"
+
+  /inspections:
+    get:
+      operationId: listInspections
+      tags: [inspections]
+      parameters:
+        - name: claimId
+          in: query
+          schema:
+            type: integer
+        - name: staffId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of inspections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inspection"
+    post:
+      operationId: createInspection
+      tags: [inspections]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspectionInput"
+      responses:
+        "201":
+          description: Inspection scheduled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inspection"
+
+  /inspections/{id}:
+    get:
+      operationId: getInspection
+      tags: [inspections]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inspection details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inspection"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateInspection
+      tags: [inspections]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspectionUpdate"
+      responses:
+        "200":
+          description: Updated inspection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inspection"
+
+  /anomalies:
+    get:
+      operationId: listAnomalies
+      tags: [anomalies]
+      parameters:
+        - name: claimId
+          in: query
+          schema:
+            type: integer
+        - name: anomalyType
+          in: query
+          schema:
+            type: string
+        - name: resolved
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of anomalies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Anomaly"
+
+  /anomalies/{id}:
+    get:
+      operationId: getAnomaly
+      tags: [anomalies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Anomaly details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomaly"
+        "404":
+          description: Not found
+
+  /anomalies/{id}/resolve:
+    post:
+      operationId: resolveAnomaly
+      tags: [anomalies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnomalyResolution"
+      responses:
+        "200":
+          description: Anomaly resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomaly"
+
+  /weather-events:
+    get:
+      operationId: listWeatherEvents
+      tags: [weather]
+      parameters:
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: eventType
+          in: query
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+        - name: toDate
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of weather events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeatherEvent"
+    post:
+      operationId: createWeatherEvent
+      tags: [weather]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeatherEventInput"
+      responses:
+        "201":
+          description: Weather event logged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeatherEvent"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/claims-by-status:
+    get:
+      operationId: getClaimsByStatus
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Claims by status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StatusCount"
+
+  /dashboard/claims-by-damage:
+    get:
+      operationId: getClaimsByDamage
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Claims by damage type
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DamageCount"
+
+  /dashboard/claims-by-district:
+    get:
+      operationId: getClaimsByDistrict
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Claims by district
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DistrictCount"
+
+  /dashboard/claims-over-time:
+    get:
+      operationId: getClaimsOverTime
+      tags: [dashboard]
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Claims over time
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeSeriesPoint"
+
+  /dashboard/severity-distribution:
+    get:
+      operationId: getSeverityDistribution
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Severity distribution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeverityBucket"
+
+  /dashboard/top-districts:
+    get:
+      operationId: getTopDistricts
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Top districts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DistrictSummary"
+
+  /activity:
+    get:
+      operationId: listActivity
+      tags: [activity]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Activity events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityEvent"
+
+  /data-collection:
+    get:
+      operationId: listDataCollections
+      tags: [datacollection]
+      parameters:
+        - name: cropType
+          in: query
+          schema:
+            type: string
+        - name: annotated
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of data collection records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataCollection"
+    post:
+      operationId: createDataCollection
+      tags: [datacollection]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataCollectionInput"
+      responses:
+        "201":
+          description: Data collection record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCollection"
+
+  /data-collection/{id}:
+    get:
+      operationId: getDataCollection
+      tags: [datacollection]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Data collection record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCollection"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDataCollection
+      tags: [datacollection]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataCollectionAnnotation"
+      responses:
+        "200":
+          description: Annotated record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCollection"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    Farmer:
+      type: object
+      required:
+        - id
+        - name
+        - phone
+        - state
+        - district
+        - pmfbyId
+        - totalClaims
+        - createdAt
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: ["string", "null"]
+        pmfbyId:
+          type: string
+        aadhaarLast4:
+          type: ["string", "null"]
+        state:
+          type: string
+        district:
+          type: string
+        village:
+          type: ["string", "null"]
+        bankAccount:
+          type: ["string", "null"]
+        bankIfsc:
+          type: ["string", "null"]
+        landHolding:
+          type: ["number", "null"]
+        totalClaims:
+          type: integer
+        createdAt:
+          type: string
+
+    FarmerInput:
+      type: object
+      required: [name, phone, state, district, pmfbyId]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+        email:
+          type: string
+        pmfbyId:
+          type: string
+        aadhaarLast4:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        village:
+          type: string
+        bankAccount:
+          type: string
+        bankIfsc:
+          type: string
+        landHolding:
+          type: number
+
+    FarmerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        village:
+          type: string
+        bankAccount:
+          type: string
+        bankIfsc:
+          type: string
+        landHolding:
+          type: number
+
+    Field:
+      type: object
+      required:
+        - id
+        - farmerId
+        - areaHectares
+        - cropType
+        - state
+        - district
+        - season
+        - createdAt
+      properties:
+        id:
+          type: integer
+        farmerId:
+          type: integer
+        farmerName:
+          type: ["string", "null"]
+        surveyNumber:
+          type: ["string", "null"]
+        areaHectares:
+          type: number
+        cropType:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        village:
+          type: ["string", "null"]
+        season:
+          type: string
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        soilType:
+          type: ["string", "null"]
+        irrigationType:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    FieldInput:
+      type: object
+      required: [farmerId, areaHectares, cropType, state, district, season]
+      properties:
+        farmerId:
+          type: integer
+        surveyNumber:
+          type: string
+        areaHectares:
+          type: number
+        cropType:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        village:
+          type: string
+        season:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        soilType:
+          type: string
+        irrigationType:
+          type: string
+
+    Claim:
+      type: object
+      required:
+        - id
+        - farmerId
+        - fieldId
+        - cropType
+        - damageType
+        - severityPct
+        - confidenceScore
+        - status
+        - imageUrl
+        - latitude
+        - longitude
+        - submittedAt
+        - createdAt
+      properties:
+        id:
+          type: integer
+        farmerId:
+          type: integer
+        farmerName:
+          type: ["string", "null"]
+        fieldId:
+          type: integer
+        cropType:
+          type: string
+        damageType:
+          type: string
+        severityPct:
+          type: number
+        confidenceScore:
+          type: number
+        status:
+          type: string
+        imageUrl:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        district:
+          type: ["string", "null"]
+        state:
+          type: ["string", "null"]
+        estimatedLoss:
+          type: ["number", "null"]
+        compensationSlab:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        flagReason:
+          type: ["string", "null"]
+        reviewedBy:
+          type: ["string", "null"]
+        reviewedAt:
+          type: ["string", "null"]
+        submittedAt:
+          type: string
+        createdAt:
+          type: string
+
+    ClaimInput:
+      type: object
+      required: [farmerId, fieldId, cropType, damageType, severityPct, imageUrl, latitude, longitude]
+      properties:
+        farmerId:
+          type: integer
+        fieldId:
+          type: integer
+        cropType:
+          type: string
+        damageType:
+          type: string
+        severityPct:
+          type: number
+        imageUrl:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        district:
+          type: string
+        state:
+          type: string
+        notes:
+          type: string
+
+    ClaimUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        notes:
+          type: string
+        estimatedLoss:
+          type: number
+        compensationSlab:
+          type: string
+
+    ClaimDecision:
+      type: object
+      required: [reviewedBy, notes]
+      properties:
+        reviewedBy:
+          type: string
+        notes:
+          type: string
+        estimatedLoss:
+          type: number
+        compensationSlab:
+          type: string
+
+    ClaimFlag:
+      type: object
+      required: [flagReason]
+      properties:
+        flagReason:
+          type: string
+        reviewedBy:
+          type: string
+
+    Prediction:
+      type: object
+      required:
+        - id
+        - claimId
+        - cropType
+        - damageType
+        - severityPct
+        - confidenceScore
+        - flagForManualReview
+        - modelVersion
+        - weatherCorroborated
+        - anomalyDetected
+        - createdAt
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+        cropType:
+          type: string
+        damageType:
+          type: string
+        severityPct:
+          type: number
+        confidenceScore:
+          type: number
+        flagForManualReview:
+          type: boolean
+        modelVersion:
+          type: string
+        processingTimeMs:
+          type: ["integer", "null"]
+        rawOutput:
+          type: ["string", "null"]
+        weatherCorroborated:
+          type: boolean
+        anomalyDetected:
+          type: boolean
+        createdAt:
+          type: string
+
+    PredictionInput:
+      type: object
+      required: [claimId, imageUrl]
+      properties:
+        claimId:
+          type: integer
+        imageUrl:
+          type: string
+
+    ModelStats:
+      type: object
+      required: [totalPredictions, avgConfidence, accuracy, flagRate, avgProcessingMs]
+      properties:
+        totalPredictions:
+          type: integer
+        avgConfidence:
+          type: number
+        accuracy:
+          type: number
+        flagRate:
+          type: number
+        avgProcessingMs:
+          type: integer
+        cropBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/CropAccuracy"
+        damageBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/DamageAccuracy"
+
+    CropAccuracy:
+      type: object
+      required: [cropType, count, accuracy]
+      properties:
+        cropType:
+          type: string
+        count:
+          type: integer
+        accuracy:
+          type: number
+
+    DamageAccuracy:
+      type: object
+      required: [damageType, count, accuracy]
+      properties:
+        damageType:
+          type: string
+        count:
+          type: integer
+        accuracy:
+          type: number
+
+    Inspection:
+      type: object
+      required:
+        - id
+        - claimId
+        - staffName
+        - status
+        - scheduledDate
+        - aiOverridden
+        - createdAt
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+        staffName:
+          type: string
+        staffId:
+          type: ["integer", "null"]
+        status:
+          type: string
+        scheduledDate:
+          type: string
+        completedDate:
+          type: ["string", "null"]
+        verifiedCrop:
+          type: ["string", "null"]
+        verifiedDamage:
+          type: ["string", "null"]
+        verifiedSeverity:
+          type: ["number", "null"]
+        aiOverridden:
+          type: boolean
+        overrideReason:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        gpsLat:
+          type: ["number", "null"]
+        gpsLng:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+
+    InspectionInput:
+      type: object
+      required: [claimId, staffName, scheduledDate]
+      properties:
+        claimId:
+          type: integer
+        staffName:
+          type: string
+        staffId:
+          type: integer
+        scheduledDate:
+          type: string
+        notes:
+          type: string
+
+    InspectionUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        completedDate:
+          type: string
+        verifiedCrop:
+          type: string
+        verifiedDamage:
+          type: string
+        verifiedSeverity:
+          type: number
+        aiOverridden:
+          type: boolean
+        overrideReason:
+          type: string
+        notes:
+          type: string
+        gpsLat:
+          type: number
+        gpsLng:
+          type: number
+
+    Anomaly:
+      type: object
+      required:
+        - id
+        - claimId
+        - anomalyType
+        - description
+        - severity
+        - resolved
+        - createdAt
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+        anomalyType:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        resolved:
+          type: boolean
+        resolvedBy:
+          type: ["string", "null"]
+        resolvedAt:
+          type: ["string", "null"]
+        resolution:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AnomalyResolution:
+      type: object
+      required: [resolvedBy, resolution]
+      properties:
+        resolvedBy:
+          type: string
+        resolution:
+          type: string
+
+    WeatherEvent:
+      type: object
+      required:
+        - id
+        - eventType
+        - state
+        - district
+        - eventDate
+        - severity
+        - createdAt
+      properties:
+        id:
+          type: integer
+        eventType:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        eventDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        severity:
+          type: string
+        description:
+          type: ["string", "null"]
+        ndviIndex:
+          type: ["number", "null"]
+        source:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    WeatherEventInput:
+      type: object
+      required: [eventType, state, district, eventDate, severity]
+      properties:
+        eventType:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        eventDate:
+          type: string
+        endDate:
+          type: string
+        severity:
+          type: string
+        description:
+          type: string
+        ndviIndex:
+          type: number
+        source:
+          type: string
+
+    DashboardStats:
+      type: object
+      required:
+        - totalFarmers
+        - totalFields
+        - totalClaims
+        - pendingClaims
+        - approvedClaims
+        - rejectedClaims
+        - flaggedClaims
+        - underReviewClaims
+        - totalPayout
+        - avgSeverity
+        - avgConfidence
+        - totalAnomalies
+        - unresolvedAnomalies
+      properties:
+        totalFarmers:
+          type: integer
+        totalFields:
+          type: integer
+        totalClaims:
+          type: integer
+        pendingClaims:
+          type: integer
+        approvedClaims:
+          type: integer
+        rejectedClaims:
+          type: integer
+        flaggedClaims:
+          type: integer
+        underReviewClaims:
+          type: integer
+        totalPayout:
+          type: number
+        avgSeverity:
+          type: number
+        avgConfidence:
+          type: number
+        totalAnomalies:
+          type: integer
+        unresolvedAnomalies:
+          type: integer
+
+    StatusCount:
+      type: object
+      required: [status, count]
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+
+    DamageCount:
+      type: object
+      required: [damageType, count, avgSeverity]
+      properties:
+        damageType:
+          type: string
+        count:
+          type: integer
+        avgSeverity:
+          type: number
+
+    DistrictCount:
+      type: object
+      required: [district, state, count]
+      properties:
+        district:
+          type: string
+        state:
+          type: string
+        count:
+          type: integer
+
+    TimeSeriesPoint:
+      type: object
+      required: [period, count, approvedCount, totalValue]
+      properties:
+        period:
+          type: string
+        count:
+          type: integer
+        approvedCount:
+          type: integer
+        totalValue:
+          type: number
+
+    SeverityBucket:
+      type: object
+      required: [bucket, count]
+      properties:
+        bucket:
+          type: string
+        count:
+          type: integer
+
+    DistrictSummary:
+      type: object
+      required: [district, state, claimCount, totalPayout, avgSeverity]
+      properties:
+        district:
+          type: string
+        state:
+          type: string
+        claimCount:
+          type: integer
+        totalPayout:
+          type: number
+        avgSeverity:
+          type: number
+
+    ActivityEvent:
+      type: object
+      required: [id, eventType, description, entityType, entityId, createdAt]
+      properties:
+        id:
+          type: integer
+        eventType:
+          type: string
+        description:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: integer
+        actorName:
+          type: ["string", "null"]
+        metadata:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    DataCollection:
+      type: object
+      required:
+        - id
+        - collectedBy
+        - cropType
+        - imageUrl
+        - latitude
+        - longitude
+        - district
+        - state
+        - annotated
+        - collectionMethod
+        - createdAt
+      properties:
+        id:
+          type: integer
+        collectedBy:
+          type: string
+        cropType:
+          type: string
+        imageUrl:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        district:
+          type: string
+        state:
+          type: string
+        annotated:
+          type: boolean
+        damageType:
+          type: ["string", "null"]
+        severityLabel:
+          type: ["string", "null"]
+        qualityScore:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        collectionMethod:
+          type: string
+        createdAt:
+          type: string
+
+    DataCollectionInput:
+      type: object
+      required: [collectedBy, cropType, imageUrl, latitude, longitude, district, state, collectionMethod]
+      properties:
+        collectedBy:
+          type: string
+        cropType:
+          type: string
+        imageUrl:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        district:
+          type: string
+        state:
+          type: string
+        collectionMethod:
+          type: string
+        notes:
+          type: string
+
+    DataCollectionAnnotation:
+      type: object
+      properties:
+        damageType:
+          type: string
+        severityLabel:
+          type: string
+        qualityScore:
+          type: number
+        annotated:
+          type: boolean
+        notes:
+          type: string

@@ -1,0 +1,936 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: PMFBY Crop Insurance AI Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: farmers
+    description: Farmer management
+  - name: fields
+    description: Agricultural field/land records
+  - name: claims
+    description: Insurance claim management
+  - name: predictions
+    description: AI model predictions
+  - name: inspections
+    description: Field staff inspections and verifications
+  - name: anomalies
+    description: Fraud/anomaly detection
+  - name: weather
+    description: Weather event data
+  - name: dashboard
+    description: Dashboard summary and analytics
+  - name: activity
+    description: Activity feed and timeline
+  - name: datacollection
+    description: Field data collection for annotation
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Farmers ─────────────────────────────────────────────────────────────
+  /farmers:
+    get:
+      operationId: listFarmers
+      tags: [farmers]
+      summary: List all farmers
+      parameters:
+        - name: district
+          in: query
+          schema: { type: string }
+        - name: state
+          in: query
+          schema: { type: string }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of farmers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Farmer"
+    post:
+      operationId: createFarmer
+      tags: [farmers]
+      summary: Register a new farmer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FarmerInput"
+      responses:
+        "201":
+          description: Farmer created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+
+  /farmers/{id}:
+    get:
+      operationId: getFarmer
+      tags: [farmers]
+      summary: Get farmer details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Farmer details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateFarmer
+      tags: [farmers]
+      summary: Update farmer details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FarmerUpdate"
+      responses:
+        "200":
+          description: Updated farmer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+
+  /farmers/{id}/claims:
+    get:
+      operationId: getFarmerClaims
+      tags: [farmers]
+      summary: Get all claims for a farmer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Claims for farmer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Claim"
+
+  # ─── Fields ──────────────────────────────────────────────────────────────
+  /fields:
+    get:
+      operationId: listFields
+      tags: [fields]
+      summary: List agricultural fields
+      parameters:
+        - name: farmerId
+          in: query
+          schema: { type: integer }
+        - name: district
+          in: query
+          schema: { type: string }
+        - name: cropType
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of fields
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Field"
+    post:
+      operationId: createField
+      tags: [fields]
+      summary: Register a new field
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FieldInput"
+      responses:
+        "201":
+          description: Field created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Field"
+
+  /fields/{id}:
+    get:
+      operationId: getField
+      tags: [fields]
+      summary: Get field details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Field details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Field"
+        "404":
+          description: Not found
+
+  # ─── Claims ──────────────────────────────────────────────────────────────
+  /claims:
+    get:
+      operationId: listClaims
+      tags: [claims]
+      summary: List insurance claims
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, under_review, approved, rejected, flagged]
+        - name: district
+          in: query
+          schema: { type: string }
+        - name: cropType
+          in: query
+          schema: { type: string }
+        - name: damageType
+          in: query
+          schema: { type: string }
+        - name: fromDate
+          in: query
+          schema: { type: string, format: "date" }
+        - name: toDate
+          in: query
+          schema: { type: string, format: "date" }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of claims
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Claim"
+    post:
+      operationId: createClaim
+      tags: [claims]
+      summary: Submit a new insurance claim
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimInput"
+      responses:
+        "201":
+          description: Claim created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}:
+    get:
+      operationId: getClaim
+      tags: [claims]
+      summary: Get claim details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Claim details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateClaim
+      tags: [claims]
+      summary: Update claim status or details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimUpdate"
+      responses:
+        "200":
+          description: Updated claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}/approve:
+    post:
+      operationId: approveClaim
+      tags: [claims]
+      summary: Approve a claim
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimDecision"
+      responses:
+        "200":
+          description: Claim approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}/reject:
+    post:
+      operationId: rejectClaim
+      tags: [claims]
+      summary: Reject a claim
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimDecision"
+      responses:
+        "200":
+          description: Claim rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}/flag:
+    post:
+      operationId: flagClaim
+      tags: [claims]
+      summary: Flag a claim for manual review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimFlag"
+      responses:
+        "200":
+          description: Claim flagged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  # ─── AI Predictions ───────────────────────────────────────────────────────
+  /predictions:
+    get:
+      operationId: listPredictions
+      tags: [predictions]
+      summary: List AI model predictions
+      parameters:
+        - name: claimId
+          in: query
+          schema: { type: integer }
+        - name: cropType
+          in: query
+          schema: { type: string }
+        - name: flaggedOnly
+          in: query
+          schema: { type: boolean }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of predictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prediction"
+    post:
+      operationId: createPrediction
+      tags: [predictions]
+      summary: Run AI prediction on crop image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PredictionInput"
+      responses:
+        "201":
+          description: Prediction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prediction"
+
+  /predictions/{id}:
+    get:
+      operationId: getPrediction
+      tags: [predictions]
+      summary: Get prediction details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Prediction details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prediction"
+        "404":
+          description: Not found
+
+  /predictions/model-stats:
+    get:
+      operationId: getModelStats
+      tags: [predictions]
+      summary: Get AI model performance statistics
+      responses:
+        "200":
+          description: Model performance stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelStats"
+
+  # ─── Inspections ─────────────────────────────────────────────────────────
+  /inspections:
+    get:
+      operationId: listInspections
+      tags: [inspections]
+      summary: List field staff inspections
+      parameters:
+        - name: claimId
+          in: query
+          schema: { type: integer }
+        - name: staffId
+          in: query
+          schema: { type: integer }
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [scheduled, in_progress, completed, cancelled]
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of inspections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inspection"
+    post:
+      operationId: createInspection
+      tags: [inspections]
+      summary: Schedule a field inspection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspectionInput"
+      responses:
+        "201":
+          description: Inspection scheduled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inspection"
+
+  /inspections/{id}:
+    get:
+      operationId: getInspection
+      tags: [inspections]
+      summary: Get inspection details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Inspection details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inspection"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateInspection
+      tags: [inspections]
+      summary: Update inspection findings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspectionUpdate"
+      responses:
+        "200":
+          description: Updated inspection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inspection"
+
+  # ─── Anomalies ────────────────────────────────────────────────────────────
+  /anomalies:
+    get:
+      operationId: listAnomalies
+      tags: [anomalies]
+      summary: List detected anomalies and fraud flags
+      parameters:
+        - name: claimId
+          in: query
+          schema: { type: integer }
+        - name: anomalyType
+          in: query
+          schema: { type: string }
+        - name: resolved
+          in: query
+          schema: { type: boolean }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of anomalies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Anomaly"
+
+  /anomalies/{id}:
+    get:
+      operationId: getAnomaly
+      tags: [anomalies]
+      summary: Get anomaly details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Anomaly details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomaly"
+        "404":
+          description: Not found
+
+  /anomalies/{id}/resolve:
+    post:
+      operationId: resolveAnomaly
+      tags: [anomalies]
+      summary: Mark anomaly as resolved
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnomalyResolution"
+      responses:
+        "200":
+          description: Anomaly resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomaly"
+
+  # ─── Weather ─────────────────────────────────────────────────────────────
+  /weather-events:
+    get:
+      operationId: listWeatherEvents
+      tags: [weather]
+      summary: List weather events for cross-validation
+      parameters:
+        - name: district
+          in: query
+          schema: { type: string }
+        - name: state
+          in: query
+          schema: { type: string }
+        - name: eventType
+          in: query
+          schema: { type: string }
+        - name: fromDate
+          in: query
+          schema: { type: string, format: "date" }
+        - name: toDate
+          in: query
+          schema: { type: string, format: "date" }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of weather events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeatherEvent"
+    post:
+      operationId: createWeatherEvent
+      tags: [weather]
+      summary: Log a weather event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeatherEventInput"
+      responses:
+        "201":
+          description: Weather event logged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeatherEvent"
+
+  # ─── Dashboard ────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get platform-wide dashboard statistics
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/claims-by-status:
+    get:
+      operationId: getClaimsByStatus
+      tags: [dashboard]
+      summary: Claims breakdown by status
+      responses:
+        "200":
+          description: Claims by status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StatusCount"
+
+  /dashboard/claims-by-damage:
+    get:
+      operationId: getClaimsByDamage
+      tags: [dashboard]
+      summary: Claims breakdown by damage type
+      responses:
+        "200":
+          description: Claims by damage type
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DamageCount"
+
+  /dashboard/claims-by-district:
+    get:
+      operationId: getClaimsByDistrict
+      tags: [dashboard]
+      summary: Claims breakdown by district
+      responses:
+        "200":
+          description: Claims by district
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DistrictCount"
+
+  /dashboard/claims-over-time:
+    get:
+      operationId: getClaimsOverTime
+      tags: [dashboard]
+      summary: Claims count and value over time
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: monthly
+      responses:
+        "200":
+          description: Claims over time
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeSeriesPoint"
+
+  /dashboard/severity-distribution:
+    get:
+      operationId: getSeverityDistribution
+      tags: [dashboard]
+      summary: Distribution of damage severity percentages
+      responses:
+        "200":
+          description: Severity distribution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeverityBucket"
+
+  /dashboard/top-districts:
+    get:
+      operationId: getTopDistricts
+      tags: [dashboard]
+      summary: Top districts by claim count and payout
+      responses:
+        "200":
+          description: Top districts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DistrictSummary"
+
+  # ─── Activity Feed ────────────────────────────────────────────────────────
+  /activity:
+    get:
+      operationId: listActivity
+      tags: [activity]
+      summary: Recent platform activity feed
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Activity events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityEvent"
+
+  # ─── Data Collection ──────────────────────────────────────────────────────
+  /data-collection:
+    get:
+      operationId: listDataCollections
+      tags: [datacollection]
+      summary: List field data collection records for annotation
+      parameters:
+        - name: cropType
+          in: query
+          schema: { type: string }
+        - name: annotated
+          in: query
+          schema: { type: boolean }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: List of data collection records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataCollection"
+    post:
+      operationId: createDataCollection
+      tags: [datacollection]
+      summary: Submit a field data collection record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataCollectionInput"
+      responses:
+        "201":
+          description: Data collection record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCollection"
+
+  /data-collection/{id}:
+    get:
+      operationId: getDataCollection
+      tags: [datacollection]
+      summary: Get data collection record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Data collection record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCollection"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDataCollection
+      tags: [datacollection]
+      summary: Update annotation for a data collection record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataCollectionAnnotation"
+      responses:
+        "200":
+          description: Annotated record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataCollection"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string

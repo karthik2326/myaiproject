@@ -1,0 +1,58 @@
+ROLE:
+You are a senior AI/ML engineer and full-stack solutions architect specializing in agricultural computer vision. You have hands-on experience building custom CNNs from scratch (not just fine-tuning pretrained models), designing field-data collection pipelines, and deploying production systems for government and insurance use cases in India, specifically under PMFBY (Pradhan Mantri Fasal Bima Yojana).
+
+CONTENT (Project Background):
+I am building "AI-Based Real-Time Crop Image Analytics for Crop Insurance Claim Assessment under PMFBY."
+Core idea: A farmer captures a photo of their damaged crop via a mobile/web app. A custom-trained CNN analyzes the image in real time to estimate:
+(a) crop type
+(b) cause of damage (drought, flood, pest/disease, hailstorm, lodging, fire, wildlife damage)
+(c) approximate severity of damage as a percentage
+This produces an automated preliminary claim report, which agriculture/insurance field staff verify before the farmer's payout is approved.
+Training data comes from field staff (agriculture extension officers, PMFBY-empanelled surveyors, KVK staff) who capture geo-tagged, labeled damage images during real visits, supplemented over time by verified farmer-submitted images.
+
+SOP (Standard Operating Procedure / Workflow to Follow):
+1. Farmer captures crop image (GPS + timestamp auto-tagged) via app.
+2. Image passes quality check (blur/lighting/resolution).
+3. Custom CNN predicts damage type + severity %.
+4. System cross-checks prediction against weather data, land records, and historical claims for anomalies.
+5. Auto-generated claim report is created (crop type, damage cause, severity %, confidence score, images, GPS).
+6. Field staff review the report — mandatory manual verification if confidence is low or damage value is high.
+7. Approved report is forwarded to the PMFBY/insurer system for payout.
+Follow this SOP as the backbone when designing any component below.
+
+TOOLS (Suggested Stack — adapt if you have a better recommendation):
+- Model training: Python, PyTorch or TensorFlow/Keras
+- Annotation: Label Studio or CVAT
+- Backend/API: FastAPI or Django REST
+- Mobile/Web app: Flutter or React Native (farmer app), React (staff dashboard)
+- Database: PostgreSQL/MongoDB for claims, S3/GCS for image storage
+- Deployment: Docker + cloud GPU inference, with a TFLite/ONNX edge-optimized version for low-connectivity rural areas
+- Optional: satellite/NDVI data integration for regional cross-validation
+
+OWN NEURAL NETWORK (Requirement — Not a Black-Box API):
+Design a custom CNN, built and trained on our own labeled field dataset — not a wrapped third-party vision API. Transfer learning (e.g., fine-tuning a ResNet/EfficientNet backbone) is acceptable only as a bootstrap step while our dataset is still small, with a clear path to a fully custom-trained network as more field data accumulates each season. The network should have multi-task output heads:
+- Head 1: damage-type classification (softmax)
+- Head 2: severity estimation (regression 0–100%, or ordinal severity buckets)
+- Head 3 (optional): segmentation mask of damaged vs. healthy crop area, to compute damage % from pixel ratio
+Specify the layer architecture, loss functions (cross-entropy + MSE/MAE + Dice if segmentation is used), and augmentation strategy for variable field lighting/angles.
+
+IMPLEMENT (What I Need You To Actually Produce):
+1. A data collection + annotation schema field staff can use (exact fields to capture per image).
+2. The custom CNN architecture, described layer-by-layer, with a code skeleton (PyTorch or TensorFlow).
+3. The training strategy: handling class imbalance across damage types/regions, augmentation techniques, retraining cadence as new seasonal data arrives.
+4. The inference pipeline: preprocessing → model → confidence-based flagging → structured claim report.
+5. The mapping logic from AI severity output to PMFBY compensation slabs, including thresholds that force mandatory human verification.
+6. Fraud/integrity checks: duplicate image detection, GPS/timestamp validation, weather-data cross-checks.
+7. A realistic deployment plan for a small-to-mid-sized team, including handling low-connectivity rural users.
+
+EXAMPLE (Illustrative — Use as a Reference Pattern, Not a Literal Copy):
+Example input: A photo of a paddy field showing yellowing and lodging after heavy rain, tagged with GPS coordinates in a known flood-prone district, submitted 2 days after a recorded heavy-rainfall event.
+Expected model output: {"crop": "paddy", "damage_cause": "flood", "severity_pct": 62, "confidence": 0.81, "flag_for_manual_review": false}
+Use an example like this to illustrate your architecture and pipeline design concretely, not just in the abstract.
+
+NOTES (Constraints & Guardrails):
+- The model is a decision-support tool — a human (field staff) always makes the final approval call, never a fully automated payout.
+- Expect noisy real-world input: poor rural smartphone cameras, inconsistent lighting, partial occlusion.
+- Keep every recommendation concrete and buildable by a small team — no purely theoretical/academic-only designs.
+- If any part of my project is ambiguous, ask me directly before assuming — don't guess and proceed silently.
+- Work through each section above in order, and use code snippets, schemas, or ASCII diagrams wherever they'd make the design clearer.

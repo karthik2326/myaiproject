@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "PMFBY Crop Insurance AI Platform"
+version = "1.0.0"
+id = "artifacts/pmfby-platform"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24421
+
+[services.development]
+run = "pnpm --filter @workspace/pmfby-platform run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pmfby-platform", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/pmfby-platform/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24421"
+BASE_PATH = "/"
