@@ -89,21 +89,21 @@ router.get("/dashboard/claims-by-district", async (_req, res): Promise<void> => 
 
 router.get("/dashboard/claims-over-time", async (req, res): Promise<void> => {
   const period = (req.query.period as string) ?? "monthly";
-  let dateTrunc = "month";
-  if (period === "daily") dateTrunc = "day";
-  else if (period === "weekly") dateTrunc = "week";
+  // Only allow known safe values — never interpolate user input directly
+  const allowedTrunc: Record<string, string> = { daily: "day", weekly: "week", monthly: "month" };
+  const dateTrunc = allowedTrunc[period] ?? "month";
 
-  const result = await db.execute(sql`
+  const result = await db.execute(sql.raw(`
     SELECT 
-      TO_CHAR(DATE_TRUNC(${dateTrunc}, submitted_at), 'YYYY-MM-DD') as period,
+      TO_CHAR(DATE_TRUNC('${dateTrunc}', submitted_at), 'YYYY-MM-DD') as period,
       COUNT(*) as count,
       SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_count,
       SUM(CASE WHEN status = 'approved' AND estimated_loss IS NOT NULL THEN CAST(estimated_loss AS FLOAT) ELSE 0 END) as total_value
     FROM claims
-    GROUP BY DATE_TRUNC(${dateTrunc}, submitted_at)
-    ORDER BY DATE_TRUNC(${dateTrunc}, submitted_at)
+    GROUP BY DATE_TRUNC('${dateTrunc}', submitted_at)
+    ORDER BY DATE_TRUNC('${dateTrunc}', submitted_at)
     LIMIT 24
-  `);
+  `));
 
   res.json((result.rows as any[]).map(r => ({
     period: r.period,
