@@ -68,24 +68,6 @@ router.post("/predictions", async (req, res): Promise<void> => {
   res.status(201).json(serializePrediction(prediction));
 });
 
-router.get("/predictions/:id", async (req, res): Promise<void> => {
-  const params = GetPredictionParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const [prediction] = await db
-    .select()
-    .from(predictionsTable)
-    .where(eq(predictionsTable.id, params.data.id));
-
-  if (!prediction) {
-    res.status(404).json({ error: "Prediction not found" });
-    return;
-  }
-  res.json(serializePrediction(prediction));
-});
-
 router.get("/predictions/model-stats", async (_req, res): Promise<void> => {
   const stats = await db
     .select({
@@ -122,6 +104,24 @@ router.get("/predictions/model-stats", async (_req, res): Promise<void> => {
     cropBreakdown: cropBreakdown.map(c => ({ cropType: c.cropType, count: Number(c.count), accuracy: 0.85 + Math.random() * 0.1 })),
     damageBreakdown: damageBreakdown.map(d => ({ damageType: d.damageType, count: Number(d.count), accuracy: 0.80 + Math.random() * 0.15 })),
   });
+});
+
+router.get("/predictions/:id", async (req, res): Promise<void> => {
+  const params = GetPredictionParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const [prediction] = await db
+    .select()
+    .from(predictionsTable)
+    .where(eq(predictionsTable.id, params.data.id));
+
+  if (!prediction) {
+    res.status(404).json({ error: "Prediction not found" });
+    return;
+  }
+  res.json(serializePrediction(prediction));
 });
 
 export default router;
