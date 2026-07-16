@@ -1,0 +1,1 @@
+- [PMFBY Platform Stack](pmfby-stack.md) — full-stack decisions: orval codegen, Express+Drizzle backend, React+Vite frontend, 9-table schema
