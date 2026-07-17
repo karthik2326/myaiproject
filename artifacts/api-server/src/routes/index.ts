@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import storageRouter from "./storage";
 import farmersRouter from "./farmers";
 import fieldsRouter from "./fields";
 import claimsRouter from "./claims";
@@ -24,5 +25,6 @@ router.use(weatherRouter);
 router.use(dashboardRouter);
 router.use(activityRouter);
 router.use(datacollectionRouter);
+router.use(storageRouter);
 
 export default router;

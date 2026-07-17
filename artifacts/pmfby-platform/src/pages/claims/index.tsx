@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { PageHeader, TableSkeleton, EmptyState } from "@/components/ui/shared";
 import { StatusBadge, DamageTypeBadge, ConfidenceBadge } from "@/components/ui/badges";
 import { useListClaims } from "@workspace/api-client-react";
-import { Search, Filter, ArrowRight } from "lucide-react";
+import { Search, Filter, ArrowRight, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -42,10 +42,18 @@ export default function ClaimsPage() {
   return (
     <Layout>
       <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
-        <PageHeader 
-          title="Crop Damage Claims" 
-          description="Manage and review AI-processed damage claims across all districts." 
-        />
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <PageHeader 
+            title="Crop Damage Claims" 
+            description="Manage and review AI-processed damage claims across all districts." 
+          />
+          <Link href="/claims/submit">
+            <Button className="gap-2 shrink-0">
+              <PlusCircle className="w-4 h-4" />
+              Submit Claim
+            </Button>
+          </Link>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-6 bg-card p-4 rounded-xl border border-border shadow-sm">
           <div className="relative flex-1">

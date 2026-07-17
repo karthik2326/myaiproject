@@ -6,6 +6,7 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 import Dashboard from '@/pages/dashboard';
 import ClaimsPage from '@/pages/claims/index';
 import ClaimDetailPage from '@/pages/claims/detail';
+import SubmitClaimPage from '@/pages/claims/submit';
 import FarmersPage from '@/pages/farmers/index';
 import FarmerProfilePage from '@/pages/farmers/detail';
 import FieldsPage from '@/pages/fields/index';
@@ -25,6 +26,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/claims" component={ClaimsPage} />
+      <Route path="/claims/submit" component={SubmitClaimPage} />
       <Route path="/claims/:id" component={ClaimDetailPage} />
       <Route path="/farmers" component={FarmersPage} />
       <Route path="/farmers/:id" component={FarmerProfilePage} />

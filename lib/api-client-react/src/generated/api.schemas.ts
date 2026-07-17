@@ -411,6 +411,24 @@ export interface DataCollectionInput {
   notes?: string;
 }
 
+export interface StorageUploadInput {
+  name: string;
+  size: number;
+  contentType: string;
+}
+
+export type StorageUploadResultMetadata = {
+  name?: string;
+  size?: number;
+  contentType?: string;
+};
+
+export interface StorageUploadResult {
+  uploadURL: string;
+  objectPath: string;
+  metadata?: StorageUploadResultMetadata;
+}
+
 export interface DataCollectionAnnotation {
   damageType?: string;
   severityLabel?: string;
