@@ -1,1 +1,2 @@
 - [PMFBY Platform Stack](pmfby-stack.md) — full-stack decisions: orval codegen, Express+Drizzle backend, React+Vite frontend, 9-table schema
+- [Orval codegen type collision fix](orval-codegen-fix.md) — export type * patch needed after each orval run to avoid Zod/TS interface name collision
